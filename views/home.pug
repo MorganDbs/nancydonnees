@@ -1,0 +1,97 @@
+extends layout
+
+block content
+  style.
+    #map {
+      width: 100%;
+      height: 500px;
+    }
+
+  h1 Hackathon Starter
+  p.lead A boilerplate for Node.js web applications.
+  hr
+  .row
+  .page-header
+    h3 Maps
+
+
+  #map
+
+  script.
+    var parkings_voiture =!{JSON.stringify(parkings_voiture)};
+    var parkings_velo =!{JSON.stringify(parkings_velo)};
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 48.691475, lng: 6.177041 },
+        zoom: 14
+      });
+
+      parkings_voiture.forEach(function (parking) {
+
+            var marker = new google.maps.Marker({
+                position: {lat: parking.coord.y, lng: parking.coord.x},
+                map: map,
+                title: parking.nom,
+                icon: 'https://maps.google.com/mapfiles/kml/shapes/parking_lot_maps.png'
+            });
+
+            var complet = "";
+
+            if(parking.complet == 'false'){
+              complet = "Non";
+            }else{
+              complet = "Oui";
+            }
+
+            var places = "";
+            if(parking.places == null){
+              places = "Pas d'information";
+            }else{
+              places = parking.places;
+            }
+            var infowindow = new google.maps.InfoWindow({
+                content: '<div>'
+                + '<h5>' + 'Nom : ' + parking.nom + '</h5>'
+                + '<h5>' + 'Adresse : ' + parking.adresse + '</h5>'
+                + '<h5>' + 'Places libres : ' + places + '</h5>'
+                + '<h5>' + 'Capacite : ' + parking.capacite + '</h5>'
+                + '<h5>' + 'Complet : ' + complet + '</h5>'
+                + '</div>'
+            });
+
+            marker.addListener('click', function(){
+                infowindow.open(map, marker);
+            });
+        });
+
+        parkings_velo.forEach(function (parking) {
+
+            var marker = new google.maps.Marker({
+                position: {lat: parking.coord.x, lng: parking.coord.y},
+                map: map,
+                title: parking.nom
+            });
+
+            let ouvert ='oui';
+            if(parking.ouvert!=1){
+              ouvert = "non";
+            }
+            var infowindow = new google.maps.InfoWindow({
+                content: '<div>'
+                + '<h5>' + 'Nom : ' + parking.nom + '</h5>'
+                + '<h5>' + 'Adresse : ' + parking.adresse + '</h5>'
+                + '<h5>' + 'Places libres : ' + parking.places_libres + '</h5>'
+                + '<h5>' + 'Vélos disponibles : ' + parking.velos_disponibles + '</h5>'
+                + '<h5>' + 'Ouvert : ' + ouvert + '</h5>'
+                + '</div>'
+            });
+
+            marker.addListener('click', function(){
+                infowindow.open(map, marker);
+            });
+        });
+
+    }
+
+  script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyDID5uSKinSpuwtZAWRcu5Fz6bMjj9yNXA&callback=initMap')
