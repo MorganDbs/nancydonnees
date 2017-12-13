@@ -33,6 +33,8 @@ dotenv.load({ path: '.env.example' });
 const homeController = require('./controllers/home');
 const userController = require('./controllers/user');
 const parkingController = require('./controllers/parking');
+const eventController = require('./controllers/event');
+const commentController = require('./controllers/comment');
 
 /**
  * API keys and Passport configuration.
@@ -115,14 +117,18 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
 setInterval(function(){
-  //parkingController.updateParkingVoiture();
-  //parkingController.updateParkingVelo();
-},5000);
+  parkingController.updateParkingVoiture();
+  parkingController.updateParkingVelo();
+},5000000);
 /**
  * Primary app routes.
  */
 app.get('/', homeController.index);
-
+app.get('/events', eventController.getEvent);
+app.get('/event/add', eventController.addEventForm);
+app.post('/event/add', eventController.addEvent);
+app.get('/event/:id', eventController.getEventDetails);
+app.post('/comment/add', commentController.addComment);
 app.get('/login', userController.getLogin);
 app.post('/login', userController.postLogin);
 app.get('/logout', userController.logout);

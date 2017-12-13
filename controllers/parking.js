@@ -4,10 +4,9 @@ const axios = require('axios');
 var parseString = require('xml2js').parseString;
 
 exports.updateParkingVoiture = (req, res) => {
-    ParkingVoiture.remove({}, function() {});
-
     axios.get('https://geoservices.grand-nancy.org/arcgis/rest/services/public/VOIRIE_Parking/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
         .then(response => {
+            ParkingVoiture.remove({}, function() {});
             for (var i = 0; i < response.data.features.length; i++) {
                 new ParkingVoiture({
                     nom: response.data.features[i].attributes.NOM,
@@ -28,9 +27,9 @@ exports.updateParkingVoiture = (req, res) => {
 };
 
 exports.updateParkingVelo = (req, res) => {
-    ParkingVelo.remove({}, function() {});
     axios.get('http://www.velostanlib.fr/service/carto')
         .then(response => {
+            ParkingVelo.remove({}, function() {});
             parseString(response.data, function(err, result) {
                 for (var i = 0; i < result.carto.markers[0].marker.length; i++) {
                     const station = result.carto.markers[0].marker[i].$;

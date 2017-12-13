@@ -1,0 +1,67 @@
+extends layout
+
+block content
+    .page-header
+        h3 Evenement
+    .row
+        .col-sm-12
+            form.form-horizontal(action="/event/add", method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                .form-group
+                    label Titre
+                    input(class='form-control', placeholder='Titre', name="titre", required)
+                .form-group
+                    label Type
+                    select(class='form-control', name="type", required)
+                        option(selected='true', value="") Choisir un type
+                        option Sport
+                        option Convention
+                        option Concert
+                        option Rencontre
+                .form-group
+                    label Adresse
+                    input(class='form-control', placeholder='Adresse', name="adresse", required, id="adresse")
+                .form-group
+                    label Date
+                    input(class='form-control', type="date", require, name="date", id="date")
+                .form-group
+                    label Heure
+                    input(class='form-control', type="time", required, name="time")
+                .form-group
+                    label Description
+                    textarea(class='form-control', rows="3", name="description", required)
+                    br
+                    button(type='submit', class='btn btn-primary') Ajouter
+
+
+    script.
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+
+        if(dd<10) {
+            dd = '0'+dd
+        }
+
+        if(mm<10) {
+            mm = '0'+mm
+        }
+
+        today = yyyy+'-'+mm+'-'+dd;
+        document.getElementById('date').value = today;
+
+    script(src='https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyDID5uSKinSpuwtZAWRcu5Fz6bMjj9yNXA')
+
+    script.
+        var cityBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(48.692722, 6.172750),
+          new google.maps.LatLng(48.692722, 6.172750));
+
+        var input = document.getElementById('adresse');
+        var options = {
+        bounds: cityBounds,
+            componentRestrictions: {country: "FR"}
+        };
+
+        autocomplete = new google.maps.places.Autocomplete(input, options);
