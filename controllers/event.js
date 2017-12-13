@@ -1,5 +1,7 @@
 const Event = require('../models/Event.js');
-var Comment = require('../models/Comment.js')
+const Comment = require('../models/Comment.js')
+const ParkingVoiture = require('../models/ParkingVoiture.js')
+const ParkingVelo = require('../models/ParkingVelo.js')
 var ObjectId = require('mongoose').Types.ObjectId;
 
 exports.getEvent = (req, res) => {
@@ -21,6 +23,11 @@ exports.addEventForm = (req, res) => {
     }
 };
 
+exports.clearDoneEvent = (req, res) => {
+    var today = new Date();
+    Event.remove({date_not_formated: {$lte: today}});
+};
+
 
 exports.addEvent = (req, res) => {
     var date = req.body.date.split('-')[2] + '/' + req.body.date.split('-')[1] + '/' + req.body.date.split('-')[0];
@@ -29,6 +36,7 @@ exports.addEvent = (req, res) => {
         type: req.body.type,
         adresse: req.body.adresse,
         date: date,
+        date_not_formated: req.body.date,
         time: req.body.time,
         description: req.body.description
     }).save(Event).then(function(){
@@ -42,12 +50,19 @@ exports.getEventDetails = (req, res) => {
     var user = req.user;
     Event.find({ _id: id_event}, function (err, docs) {
         Comment.find({ id_event: id_event}, function (err, docs_comments) {
-            res.render('eventDetails', {
-                eventDetails: docs,
-                auth: res.locals.login,
-                comments: docs_comments,
-                user: user
+            ParkingVoiture.find((err, docs_parking_voiture) => {
+                ParkingVelo.find((err, docs_parking_velo) => {
+                    res.render('eventDetails', {
+                        eventDetails: docs,
+                        auth: res.locals.login,
+                        comments: docs_comments,
+                        user: user,
+                        parkings_voiture: docs_parking_voiture,
+                        parkings_velo: docs_parking_velo
+                    });
+                });
             });
+
         });
     });
 };

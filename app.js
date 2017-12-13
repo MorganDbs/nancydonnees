@@ -119,7 +119,12 @@ app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }))
 setInterval(function(){
   parkingController.updateParkingVoiture();
   parkingController.updateParkingVelo();
-},5000000);
+},600000);
+
+setInterval(function(){
+  eventController.clearDoneEvent();
+},86400000);
+
 /**
  * Primary app routes.
  */
