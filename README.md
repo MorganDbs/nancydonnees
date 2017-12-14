@@ -26,7 +26,7 @@ The easiest way to get started is to clone the repository:
 
 ```bash
 # Get the latest snapshot
-git clone --depth=1 https://github.com/sahat/hackathon-starter.git myproject
+git clone --depth=1 git@github.com:MorganDbs/nancydonnees.git myproject
 
 # Change directory
 cd myproject
