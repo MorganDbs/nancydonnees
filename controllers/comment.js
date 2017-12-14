@@ -11,3 +11,11 @@ exports.addComment = (req, res) => {
         res.redirect('/event/' + req.body.id_event);
     });
 };
+
+exports.deleteComment = (req, res) => {
+    var id_comment = req.params.id;
+    Comment.remove({ _id: id_comment}, function(){
+        res.redirect('back');
+    });
+};
+

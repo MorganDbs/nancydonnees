@@ -75,6 +75,8 @@ block content
 
     script.
         var comments =!{JSON.stringify(comments)};
+        var user =!{JSON.stringify(user)};
+        var _csrf =!{JSON.stringify(_csrf)};
             comments.forEach(function(comment){
                 var date = comment.updatedAt.split('T')[0];
                 var heure = comment.updatedAt.split('T')[1];
@@ -82,7 +84,10 @@ block content
                 date = date[2] + "/" + date[1] + "/" + date[0];
                 heure = heure.split('.')[0];
                 heure = parseInt(heure.split(':')[0])+1 + ':' + heure.split(':')[1] + ':' + heure.split(':')[2];
-                date = 'Le ' + date + ' à ' + heure;
+                date = 'Le ' + date + ' à ' + heure + ' ';
+                if(comment.id_user == user._id){
+                    date+= '<br><br> <form class="form-horizontal" name="delete" action="/comment/delete/'+comment._id+'" method="POST"><input type="hidden" name="_csrf" value='+_csrf+'><a href="#" onclick="document.delete.submit()" >Supprimer</a></form>';
+                }
                 document.getElementById(comment._id).innerHTML = date;
             });
 

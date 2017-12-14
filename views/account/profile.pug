@@ -24,14 +24,12 @@ block content
                   td= event.adresse
                   td= event.date
                   td= event.time
-                  form(action='/event/delete/'+event._id, method='POST')
+                  form(action='/event/delete/'+event._id, method='POST', name="delete")
                     input(type='hidden', name='_csrf', value=_csrf)
                     td
-                      button(type="submit", class="btn btn-default") Supprimer
-                  form(action='/event/edit/'+event._id, method='POST')
-                    input(type='hidden', name='_csrf', value=_csrf)
-                    td
-                      button(type="submit", class="btn btn-default") Modifier
+                      a(href="#", onclick="document.delete.submit()") Supprimer
+                  td
+                    a(href="/event/edit/"+event._id) Modifier
   .page-header
     h3 Informations du compte
 

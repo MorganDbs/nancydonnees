@@ -1,0 +1,57 @@
+extends layout
+
+block content
+    .page-header
+        h3 Modifier évenement
+    .row
+        for event in events
+            .col-sm-12
+                form.form-horizontal(action="/event/edit/"+event._id, method='POST')
+                    input(type='hidden', name='_csrf', value=_csrf)
+                    .form-group
+                        label Titre
+                        input(class='form-control', placeholder='Titre', name="titre", value=event.titre, required)
+                    .form-group
+                        label Type
+                        select(class='form-control', name="type", required)
+                            option(selected='true', value=event.type)= event.type
+                            option Sport
+                            option Convention
+                            option Concert
+                            option Rencontre
+                    .form-group
+                        label Adresse
+                        input(class='form-control', placeholder='Adresse', name="adresse", required, value=event.adresse, id="adresse")
+                    .form-group
+                        label Date
+                        input(class='form-control', type="date", require, name="date", id="date")
+                    .form-group
+                        label Heure
+                        input(class='form-control', type="time", required, name="time", value=event.time)
+                    .form-group
+                        label Description
+                        textarea(class='form-control', rows="5", name="description", required)= event.description
+                        br
+                        button(type='submit', class='btn btn-primary') Modifier
+
+
+    script.
+        var event =!{JSON.stringify(events)};
+        var datesaved = new Date()
+        datesaved = event[0].date.split('/')[2]+'-'+event[0].date.split('/')[1]+'-'+event[0].date.split('/')[0];
+        document.getElementById('date').value = datesaved;
+
+    script(src='https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyDID5uSKinSpuwtZAWRcu5Fz6bMjj9yNXA')
+
+    script.
+        var cityBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(48.692722, 6.172750),
+          new google.maps.LatLng(48.692722, 6.172750));
+
+        var input = document.getElementById('adresse');
+        var options = {
+        bounds: cityBounds,
+            componentRestrictions: {country: "FR"}
+        };
+
+        autocomplete = new google.maps.places.Autocomplete(input, options);
