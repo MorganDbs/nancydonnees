@@ -14,6 +14,12 @@ exports.getEvent = (req, res) => {
     });
 };
 
+exports.deleteEvent = (req, res) => {
+    var id_event = req.params.id;
+    Event.remove({ _id: id_event}, function(){
+        res.redirect('/account');
+    });
+};
 exports.addEventForm = (req, res) => {
     res.locals.login = req.isAuthenticated();
     if(res.locals.login){
@@ -34,6 +40,7 @@ exports.addEvent = (req, res) => {
     new Event({
         titre: req.body.titre,
         type: req.body.type,
+        id_user: req.user._id,
         adresse: req.body.adresse,
         date: date,
         date_not_formated: req.body.date,

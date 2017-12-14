@@ -133,6 +133,7 @@ app.get('/events', eventController.getEvent);
 app.get('/event/add', eventController.addEventForm);
 app.post('/event/add', eventController.addEvent);
 app.get('/event/:id', eventController.getEventDetails);
+app.post('/event/delete/:id', eventController.deleteEvent);
 app.post('/comment/add', commentController.addComment);
 app.get('/login', userController.getLogin);
 app.post('/login', userController.postLogin);

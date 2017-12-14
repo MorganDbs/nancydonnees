@@ -3,6 +3,7 @@ const crypto = bluebird.promisifyAll(require('crypto'));
 const nodemailer = require('nodemailer');
 const passport = require('passport');
 const User = require('../models/User');
+const Event = require('../models/Event')
 
 /**
  * GET /login
@@ -22,8 +23,8 @@ exports.getLogin = (req, res) => {
  * Sign in using email and password.
  */
 exports.postLogin = (req, res, next) => {
-  req.assert('email', 'Email is not valid').isEmail();
-  req.assert('password', 'Password cannot be blank').notEmpty();
+  req.assert('email', 'Email non valide').isEmail();
+  req.assert('password', 'Le mot de passe ne peut pas etre vide').notEmpty();
   req.sanitize('email').normalizeEmail({ gmail_remove_dots: false });
 
   const errors = req.validationErrors();
@@ -41,7 +42,7 @@ exports.postLogin = (req, res, next) => {
     }
     req.logIn(user, (err) => {
       if (err) { return next(err); }
-      req.flash('success', { msg: 'Success! You are logged in.' });
+      req.flash('success', { msg: 'Vous êtes connecté' });
       res.redirect(req.session.returnTo || '/');
     });
   })(req, res, next);
@@ -74,9 +75,9 @@ exports.getSignup = (req, res) => {
  * Create a new local account.
  */
 exports.postSignup = (req, res, next) => {
-  req.assert('email', 'Email is not valid').isEmail();
-  req.assert('password', 'Password must be at least 4 characters long').len(4);
-  req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
+  req.assert('email', 'Email non valid').isEmail();
+  req.assert('password', 'Le motde passe doit faire au moins 4 caractères').len(4);
+  req.assert('confirmPassword', 'Les mots de passe ne correspondent pas').equals(req.body.password);
   req.sanitize('email').normalizeEmail({ gmail_remove_dots: false });
 
   const errors = req.validationErrors();
@@ -97,7 +98,7 @@ exports.postSignup = (req, res, next) => {
   User.findOne({ email: req.body.email }, (err, existingUser) => {
     if (err) { return next(err); }
     if (existingUser) {
-      req.flash('errors', { msg: 'Account with that email address already exists.' });
+      req.flash('errors', { msg: 'Un compte avec cette adresse mail existe déjà' });
       return res.redirect('/signup');
     }
     user.save((err) => {
@@ -117,9 +118,12 @@ exports.postSignup = (req, res, next) => {
  * Profile page.
  */
 exports.getAccount = (req, res) => {
-  res.render('account/profile', {
-    title: 'Account Management'
-  });
+  Event.find({ id_user: req.user._id}, function (err, docs) {
+    res.render('account/profile', {
+      title: 'Account Management',
+      events: docs
+    });
+  })
 };
 
 /**
@@ -127,7 +131,7 @@ exports.getAccount = (req, res) => {
  * Update profile information.
  */
 exports.postUpdateProfile = (req, res, next) => {
-  req.assert('email', 'Please enter a valid email address.').isEmail();
+  req.assert('email', "Merci d'entrer une adresse mail valide").isEmail();
   req.sanitize('email').normalizeEmail({ gmail_remove_dots: false });
 
   const errors = req.validationErrors();
@@ -147,12 +151,12 @@ exports.postUpdateProfile = (req, res, next) => {
     user.save((err) => {
       if (err) {
         if (err.code === 11000) {
-          req.flash('errors', { msg: 'The email address you have entered is already associated with an account.' });
+          req.flash('errors', { msg: "L'adresse mail que vous avez donné est déjà utilisé par un autre compte" });
           return res.redirect('/account');
         }
         return next(err);
       }
-      req.flash('success', { msg: 'Profile information has been updated.' });
+      req.flash('success', { msg: 'Les informations du profile ont été sauvegardé' });
       res.redirect('/account');
     });
   });
@@ -163,8 +167,8 @@ exports.postUpdateProfile = (req, res, next) => {
  * Update current password.
  */
 exports.postUpdatePassword = (req, res, next) => {
-  req.assert('password', 'Password must be at least 4 characters long').len(4);
-  req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
+  req.assert('password', 'Le mot de passe doit au moins faire 4 caractères').len(4);
+  req.assert('confirmPassword', 'Les mots de passe sont différents').equals(req.body.password);
 
   const errors = req.validationErrors();
 
@@ -178,7 +182,7 @@ exports.postUpdatePassword = (req, res, next) => {
     user.password = req.body.password;
     user.save((err) => {
       if (err) { return next(err); }
-      req.flash('success', { msg: 'Password has been changed.' });
+      req.flash('success', { msg: 'Mot de passe changé' });
       res.redirect('/account');
     });
   });
@@ -192,7 +196,7 @@ exports.postDeleteAccount = (req, res, next) => {
   User.remove({ _id: req.user.id }, (err) => {
     if (err) { return next(err); }
     req.logout();
-    req.flash('info', { msg: 'Your account has been deleted.' });
+    req.flash('info', { msg: 'Votre compte a été supprimé' });
     res.redirect('/');
   });
 };
@@ -229,7 +233,7 @@ exports.getReset = (req, res, next) => {
     .exec((err, user) => {
       if (err) { return next(err); }
       if (!user) {
-        req.flash('errors', { msg: 'Password reset token is invalid or has expired.' });
+        req.flash('errors', { msg: 'Le token de réninialisation est invalide ou expiré' });
         return res.redirect('/forgot');
       }
       res.render('account/reset', {
@@ -243,8 +247,8 @@ exports.getReset = (req, res, next) => {
  * Process the reset password request.
  */
 exports.postReset = (req, res, next) => {
-  req.assert('password', 'Password must be at least 4 characters long.').len(4);
-  req.assert('confirm', 'Passwords must match.').equals(req.body.password);
+  req.assert('password', 'Le mot de passe doit faire au moins 4 caractères').len(4);
+  req.assert('confirm', 'Les mots de passe doivent être identique').equals(req.body.password);
 
   const errors = req.validationErrors();
 
@@ -259,7 +263,7 @@ exports.postReset = (req, res, next) => {
       .where('passwordResetExpires').gt(Date.now())
       .then((user) => {
         if (!user) {
-          req.flash('errors', { msg: 'Password reset token is invalid or has expired.' });
+          req.flash('errors', { msg: 'Le token de réninialisation est invalide ou expiré' });
           return res.redirect('back');
         }
         user.password = req.body.password;
@@ -284,13 +288,13 @@ exports.postReset = (req, res, next) => {
     });
     const mailOptions = {
       to: user.email,
-      from: 'hackathon@starter.com',
-      subject: 'Your Hackathon Starter password has been changed',
-      text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
+      from: 'quefaire@nancy.fr',
+      subject: 'Votre mot de passe a été mis a jour',
+      text: `Bonjour,\n\nC'est un message de confirmation que le mot de passe du compte ${user.email} vient d'être changé.\n`
     };
     return transporter.sendMail(mailOptions)
       .then(() => {
-        req.flash('success', { msg: 'Success! Your password has been changed.' });
+        req.flash('success', { msg: 'Votre mot de passe a été changé' });
       });
   };
 
@@ -318,7 +322,7 @@ exports.getForgot = (req, res) => {
  * Create a random token, then the send user an email with a reset link.
  */
 exports.postForgot = (req, res, next) => {
-  req.assert('email', 'Please enter a valid email address.').isEmail();
+  req.assert('email', 'Entrer une adresse mail valide').isEmail();
   req.sanitize('email').normalizeEmail({ gmail_remove_dots: false });
 
   const errors = req.validationErrors();
@@ -337,7 +341,7 @@ exports.postForgot = (req, res, next) => {
       .findOne({ email: req.body.email })
       .then((user) => {
         if (!user) {
-          req.flash('errors', { msg: 'Account with that email address does not exist.' });
+          req.flash('errors', { msg: "L'adresse mail n'existe pas" });
         } else {
           user.passwordResetToken = token;
           user.passwordResetExpires = Date.now() + 3600000; // 1 hour
@@ -358,16 +362,15 @@ exports.postForgot = (req, res, next) => {
     });
     const mailOptions = {
       to: user.email,
-      from: 'hackathon@starter.com',
-      subject: 'Reset your password on Hackathon Starter',
-      text: `You are receiving this email because you (or someone else) have requested the reset of the password for your account.\n\n
-        Please click on the following link, or paste this into your browser to complete the process:\n\n
+      from: 'quefaire@nancy.fr',
+      subject: 'Réinitialiser votre mot de passe',
+      text: `Merci de suivre le lien suivant:\n\n
         http://${req.headers.host}/reset/${token}\n\n
-        If you did not request this, please ignore this email and your password will remain unchanged.\n`
+        \n`
     };
     return transporter.sendMail(mailOptions)
       .then(() => {
-        req.flash('info', { msg: `An e-mail has been sent to ${user.email} with further instructions.` });
+        req.flash('info', { msg: `Un mail a été envoyé à ${user.email} avec plus d'informations` });
       });
   };
 

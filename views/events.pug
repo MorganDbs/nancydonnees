@@ -50,8 +50,7 @@ block content
                                 td= event.date
                                 td= event.time
                                 td
-                                    a(href="/event/"+event._id)
-                                        button(class="btn btn-primary") Détails
+                                    a(href="/event/"+event._id) Détails
 
     script.
         var events =!{JSON.stringify(events)};
