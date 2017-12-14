@@ -2,10 +2,14 @@ Features
 --------
 
 - **Local Authentication** using Email and Password
-- Flash notifications
-- MVC Project Structure
+- See carpark and bikepark in Nancy in real time
+- See event create by the community
+- Add/Edit/Remove/Comment event
+- Create Account
+- Edit Account
 - Delete Account
 - CSRF protection
+- Flash notification
 
 Prerequisites
 -------------
